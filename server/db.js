@@ -1,13 +1,15 @@
 const mysql = require("mysql2");
 
-// Create a connection pool (recommended for production)
+// Create a connection pool using ENV variables (Docker-safe)
 const pool = mysql.createPool({
-  host: "localhost",
-  user: "teddy",
-  password: "teddy4309",
-  database: "fitness_app",
-  connectionLimit: 10, // Adjust this number based on your database's capacity
+  host: process.env.DB_HOST || "fitness-mysql",
+  user: process.env.DB_USER || "teddy",
+  password: process.env.DB_PASSWORD || "teddy4309",
+  database: process.env.DB_NAME || "fittrack",
+  port: process.env.DB_PORT || 3306,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
-// Export the pool to be used in other modules
 module.exports = pool.promise();
