@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: fittrack-mysql-prod
+    restart: always
+    environment:
+      MYSQL_DATABASE: fittrack
+      MYSQL_USER: teddy
+      MYSQL_PASSWORD: teddy4309
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"  # avoid conflict with dev MySQL
+    volumes:
+      - mysql_prod_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  server:
+    image: mominahmad/fittrack-server:latest
+    container_name: fittrack-server-prod
+    restart: always
+    environment:
+      DB_HOST: fittrack-mysql-prod
+      DB_USER: teddy
+      DB_PASSWORD: teddy4309
+      DB_NAME: fittrack
+    ports:
+      - "5001:5000"
+    depends_on:
+      - mysql
+
+  client:
+    image: mominahmad/fittrack-client:latest
+    container_name: fittrack-client-prod
+    restart: always
+    ports:
+      - "3001:80"
+    depends_on:
+      - server
+
+volumes:
+  mysql_prod_data:
